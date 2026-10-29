@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import { randomBytes, randomUUID, timingSafeEqual, createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { realpathSync } from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { realpathSync, existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import QRCode from 'qrcode';
 import { opcpay } from '../../index.mjs';
@@ -31,6 +31,16 @@ export function createApp(options = {}) {
   if (password.length < 12 || (mode === 'live' && password === 'local-demo-password')) throw Error('Set a private DEMO_PASSWORD with at least 12 characters');
   const userId = env.DEMO_USER_ID || 'example-user-1';
   const db = options.db || openStore(resolve(env.DATABASE_PATH || './data/example.sqlite'));
+  // Never replay mock operations against a real project after changing .env.
+  // Older databases without a marker must use a new path if they contain data.
+  try {
+    atomic(db, () => {
+      const saved = db.prepare("SELECT value FROM example_meta WHERE key='payment_mode'").get();
+      const legacyData = !saved && db.prepare('SELECT (SELECT count(*) FROM purchases) + (SELECT count(*) FROM jobs) + (SELECT count(*) FROM sessions) + (SELECT count(*) FROM mock_balances) AS n').get().n > 0;
+      if (legacyData || (saved && saved.value !== mode)) throw Error('Payment mode differs from this database; set a separate DATABASE_PATH for mock/live 模式');
+      db.prepare("INSERT OR IGNORE INTO example_meta(key,value) VALUES ('payment_mode',?)").run(mode);
+    });
+  } catch (error) { if (!options.db) db.close(); throw error; }
   const provider = options.provider || (mode === 'mock' ? mockProvider(db, origin.origin) : new opcpay({ apiKey: env.opcpay_api_key }));
   const locks = new Map();
   const attempts = new Map();
@@ -55,7 +65,9 @@ export function createApp(options = {}) {
   }
   async function body(req) {
     if (!String(req.headers['content-type'] || '').startsWith('application/json')) throw failure(415, '请使用 JSON');
-    let raw = ''; for await (const data of req) { raw += data; if (Buffer.byteLength(raw) > 8192) throw failure(413, '请求太大'); }
+    const chunks = []; let bytes = 0;
+    for await (const data of req) { bytes += data.length; if (bytes > 8192) throw failure(413, '请求太大'); chunks.push(data); }
+    const raw = Buffer.concat(chunks).toString('utf8');
     try { const result = JSON.parse(raw || '{}'); if (!result || typeof result !== 'object' || Array.isArray(result)) throw Error(); return result; }
     catch { throw failure(400, '请求格式无效'); }
   }
@@ -218,7 +230,7 @@ export function createApp(options = {}) {
   server.requestTimeout = 15000; server.headersTimeout = 10000;
   return { server, db, provider, close: () => new Promise(resolve => server.close(() => { db.close(); resolve(); })) };
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   const app = createApp();
   const port = Number(process.env.PORT || 3000);
   app.server.listen(port, '127.0.0.1', () => console.log(`opcpay example: ${process.env.PUBLIC_ORIGIN || 'http://localhost:' + port}`));

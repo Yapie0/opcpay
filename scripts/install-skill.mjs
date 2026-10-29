@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cp, mkdir, lstat, realpath, rename, readdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { realpathSync } from 'node:fs';
+import { realpathSync, existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
 export async function installSkill({ project, agent, force = false }) {
@@ -28,7 +28,7 @@ export async function installSkill({ project, agent, force = false }) {
   }
   return result;
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+if (process.argv[1] && existsSync(process.argv[1]) && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
   const args = process.argv.slice(2);
   if (args.includes('--help')) { console.log('Usage: opcpay-skill --agent codex|claude|both --project /path/to/project [--force]'); }
   else {

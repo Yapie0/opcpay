@@ -42,7 +42,7 @@ npm start
 
 ## 让 AI 帮你接入
 
-仓库包含可安装到 Codex／Claude Code 的 opcpay 技能：
+仓库包含可安装到 Codex／Claude Code 的 opcpay 技能。在需要接入的项目目录执行：
 
 ```bash
 npx --package=opcpay opcpay-skill --agent both --project /你的项目路径
@@ -60,7 +60,7 @@ npm ci --prefix examples/node
 npm run test:example
 ```
 
-测试使用模拟接口，不需要真实 API Key。技能安装器与 SDK 支持 Node 18+；示例测试使用 Node 22.13+ 的内置 SQLite。浏览器回归可选运行 `python3 test/browser_example.py`（需要 Playwright 及 Chromium/WebKit）。
+测试使用模拟接口，不需要真实 API Key。技能安装器与 SDK 支持 Node 18+；示例测试使用 Node 22.13+ 的内置 SQLite。浏览器回归可选运行 `python3 test/browser_example.py`、`python3 test/browser_failures.py` 和 `python3 test/browser_modes.py`（需要 Playwright 及 Chromium/WebKit）。TLS 测试另需 OpenSSL。完整范围和边界见[用户视角验收记录](https://github.com/Yapie0/opcpay/blob/main/docs/user-acceptance.md)。
 
 ## 开源许可
 

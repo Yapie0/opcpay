@@ -43,7 +43,7 @@ with sync_playwright() as pw:
                     page.locator('.plan button').first.click()
                     expect(page.locator('dialog')).to_be_visible()
                     expect(page.locator('#qr')).to_be_visible()
-                    page.wait_for_function('document.querySelector("#qr").naturalWidth > 0')
+                    page.wait_for_function('() => document.querySelector("#qr").naturalWidth > 0')
                     page.get_by_role('button', name='模拟付款（不扣真实资金）').click()
                     expect(page.locator('#balance')).to_have_text('剩余 3 次')
                     page.locator('#use').click()

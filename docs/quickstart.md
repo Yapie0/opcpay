@@ -31,11 +31,14 @@ npm start
 
 ```dotenv
 PAYMENT_MODE=live
+DATABASE_PATH=./data/live.sqlite
 opcpay_api_key=你的项目APIKey
 PUBLIC_ORIGIN=https://你的示例站点域名
 DEMO_PASSWORD=换成仅你自己知道的长密码
 DEMO_USER_ID=example-user-1
 ```
+
+模拟模式与真实模式必须使用不同的 `DATABASE_PATH`，不能将模拟购买或核销记录带到真实模式。已有未标记模式的旧示例数据库也应使用新路径；原文件保留不删除。
 
 将域名 HTTPS 反向代理到此服务的 `127.0.0.1:3000`，代理保留 Host。`PUBLIC_ORIGIN` 只填协议和域名（可含端口），不加路径。回跳固定为 `/return`。主站 API 当前只允许项目官网相关域名作为回跳地址，请使用该项目实际配置的受信域名。
 

@@ -100,3 +100,34 @@ test('通知验签校验原文、时间窗口及事件 ID', () => {
   assert.throws(() => verifyWebhook(raw, headers, secret, Number(timestamp) + 301));
   assert.throws(() => verifyWebhook(raw, { ...headers, 'yirenfu-event-id': 'wrong' }, secret, Number(timestamp)));
 });
+
+
+test('网关返回非 JSON 错误时仍保留 HTTP 状态与请求编号', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => new Response('<html>upstream private details</html>', { status: 502, headers: { 'x-request-id': 'gateway-request' } });
+  try {
+    await assert.rejects(() => new opcpay({ apiKey: 'fixture' }).product(), error =>
+      error instanceof opcpayError && error.status === 502 && error.requestId === 'gateway-request' && error.retryable === true && !error.message.includes('private details'));
+  } finally { globalThis.fetch = original; }
+});
+
+test('通知验签拒绝伪造、过期、篡改和错误事件身份', async t => {
+  const secret = 'fixture-secret', now = 1791792000;
+  const raw = Buffer.from('{"id":"event-1","data":{"remaining":5}}');
+  const sign = (body, stamp = String(now), key = secret) => ({ 'yirenfu-timestamp': stamp, 'yirenfu-event-id': 'event-1', 'yirenfu-signature': 'v1=' + createHmac('sha256', key).update(stamp + '.').update(body).digest('hex') });
+  const headers = sign(raw);
+  for (const [name, body, h, key, at] of [
+    ['错误密钥', raw, headers, 'another-secret', now],
+    ['缺少头', raw, {}, secret, now],
+    ['事件ID不同', raw, { ...headers, 'yirenfu-event-id': 'different' }, secret, now],
+    ['签名格式错误', raw, { ...headers, 'yirenfu-signature': 'v1=bad' }, secret, now],
+    ['过期', raw, headers, secret, now + 301],
+    ['未来时间', raw, sign(raw, String(now + 301)), secret, now],
+    ['原文篡改', Buffer.from('{"id":"event-1"}'), headers, secret, now],
+    ['缺少原文Buffer', '{}', headers, secret, now],
+    ['有效签名但非法JSON', Buffer.from('{'), sign(Buffer.from('{')), secret, now],
+    ['空事件身份', Buffer.from('{}'), sign(Buffer.from('{}')), secret, now],
+  ]) await t.test(name, () => assert.throws(() => verifyWebhook(body, h, key, at)));
+  assert.equal(verifyWebhook(raw, headers, secret, now + 300).id, 'event-1');
+  assert.equal(verifyWebhook(raw, headers, secret, now - 300).id, 'event-1');
+});

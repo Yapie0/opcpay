@@ -1,8 +1,15 @@
 const $ = id => document.getElementById(id);
-let session, state, checkoutId, checkoutAction, polling = false, checkoutGeneration = 0, checkoutPlan;
+let session, state, checkoutId, checkoutAction, polling = false, checkoutGeneration = 0, checkoutPlan, refreshGeneration = 0;
 async function api(path, input) {
   const response = await fetch(path, { method: input === undefined ? 'GET' : 'POST', headers: input === undefined ? {} : { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrf }, body: input === undefined ? undefined : JSON.stringify(input) });
-  const value = await response.json();
+  let value;
+  try { value = await response.json(); if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error(); }
+  catch { throw Error('服务暂时不可用，请稍后重试'); }
+  if (response.status === 401 && path !== '/api/login') {
+    refreshGeneration++; if (session) session.user = null;
+    $('account').hidden = true; $('login').hidden = false;
+    if ($('checkout').open) $('checkout').close();
+  }
   if (!response.ok) throw Object.assign(Error(value.error || '请求失败'), { value });
   return value;
 }
@@ -14,7 +21,10 @@ function savedAction(name) {
   return id;
 }
 async function refresh() {
-  state = await api('/api/state');
+  const generation = ++refreshGeneration;
+  const latest = await api('/api/state');
+  if (generation !== refreshGeneration) return;
+  state = latest;
   const { product: p, access: a } = state;
   $('balance').textContent = p.billing_mode === 'QUANTITY' ? `剩余 ${a.remaining ?? '未知'} ${p.quota_unit === 'POINT' ? '积分' : '次'}` : a.access_granted && a.decision === 'ALLOW' ? `权益可用${a.valid_until ? '，有效期至 ' + a.valid_until : ''}` : '尚无可用权益';
   if (state.pendingActionId) sessionStorage.setItem(actionKey('use'), state.pendingActionId);
@@ -35,6 +45,7 @@ async function boot() {
   session = await api('/api/session');
   $('mode').textContent = session.mode === 'mock' ? '模拟模式：套餐和付款均为演示数据，不会发生真实收款。' : '真实模式：点击购买后会进入支付宝，实际付款以支付宝页面为准。';
   $('login').hidden = Boolean(session.user); $('account').hidden = !session.user;
+  if (!session.user) { refreshGeneration++; if ($('checkout').open) $('checkout').close(); }
   if (session.user) await refresh();
 }
 async function checkout(plan) {

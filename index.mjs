@@ -1,7 +1,7 @@
 // Node.js 18+. Service-side SDK; never include it or API keys in browser bundles.
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
-import {resolve} from 'node:path';
+import {realpathSync,existsSync} from 'node:fs';
 
 export class opcpayError extends Error {
   constructor(message, status, body, requestId) {
@@ -17,7 +17,9 @@ export class opcpay {
   }
   async request(path,body,method=body===undefined?'GET':'POST') {
     const response=await fetch(this.base+path,{method,redirect:'error',headers:{Authorization:'Bearer '+this.key,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(60000)});
-    const result=await response.json();
+    let result;
+    try { result=await response.json(); if(!result||typeof result!=='object'||Array.isArray(result)) throw new Error(); }
+    catch { throw new opcpayError('API returned an invalid JSON response',response.status,{error_code:'INVALID_RESPONSE',retryable:response.status===429||response.status>=500},response.headers.get('x-request-id')); }
     if(!response.ok) throw new opcpayError(result.error||'API request failed',response.status,result,response.headers.get('x-request-id'));
     return result;
   }
@@ -58,7 +60,7 @@ export function verifyWebhook(rawBody,headers,secret,now=Math.floor(Date.now()/1
 // Read-only executable example: opcpay_api_key=... node index.mjs capabilities
 // Resolve user IDs from your authenticated server session. Persist job/purchase IDs
 // before writing. Network timeouts never justify a new consumption idempotency key.
-if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href) {
+if(process.argv[1]&&existsSync(process.argv[1])&&import.meta.url===pathToFileURL(realpathSync(process.argv[1])).href) {
   const client=new opcpay(),command=process.argv[2]||'capabilities';
   if(!['capabilities','product'].includes(command)) throw new Error('Use capabilities or product');
   try {console.log(JSON.stringify(await client[command](),null,2))}
