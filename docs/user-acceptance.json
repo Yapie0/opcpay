@@ -27,6 +27,25 @@
     "22.22.2 full suite"
   ],
   "real_alipay_payment": false,
-  "valid_live_key_available": false,
-  "skill_agent_end_to_end": false
+  "skill_agent_end_to_end": false,
+  "real_api": {
+    "project": "MusicAPI",
+    "owner": 1,
+    "checks": 37,
+    "schema_validation_errors": 0,
+    "real_upstream_browser_flows": 2,
+    "temporary_key_revoked": true,
+    "revoked_key_http_status": 401,
+    "original_active_keys": 1,
+    "original_consume_replays": 5,
+    "paid_quota_before": 98,
+    "paid_quota_after": 98,
+    "new_purchase_entries": 1,
+    "new_failed_consumption_requests": 1,
+    "new_successful_consumptions": 0,
+    "zero_quota_before": 0,
+    "zero_quota_after": 0,
+    "payment_made": false,
+    "webhook_configuration_changed": false
+  }
 }
