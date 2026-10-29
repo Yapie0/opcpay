@@ -1,6 +1,6 @@
 {
   "name": "opcpay",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "一人公司快捷收款接入，支持支付宝，由支付宝管理次数与积分权益",
   "type": "module",
   "main": "./index.mjs",

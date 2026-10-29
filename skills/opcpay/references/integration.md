@@ -1,5 +1,9 @@
 # 集成参考
 
+## 开通项目与 API Key
+
+真实接入前，先到[一人付官网](https://ai6666.com/opcpay/)登录并创建项目，在官网第 2 步“支付宝扫码配置”中扫码或打开支付宝后，会跳转到支付宝商品页面，其中“授权信息”显示“授权平台：碳基圈”。完成支付宝收费方式与套餐配置后，再在该项目控制台申请 API Key。将 Key 配置到服务端 `opcpay_api_key`；SDK 不会自动完成项目开通。已有项目和 Key 时复用，缺少时给用户官网入口和具体操作步骤。
+
 ## 现有包和示例
 
 源码与完整 Node 示例：https://github.com/Yapie0/opcpay/tree/main/examples/node
