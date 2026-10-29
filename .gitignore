@@ -1,0 +1,6 @@
+.env
+.env.*
+.npmrc
+.DS_Store
+node_modules/
+*.tgz

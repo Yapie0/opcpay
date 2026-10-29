@@ -1,0 +1,34 @@
+{
+  "name": "opcpay",
+  "version": "0.2.2",
+  "description": "一人公司快捷收款接入，支持支付宝，由支付宝管理次数与积分权益",
+  "type": "module",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "opcpay",
+    "payment",
+    "alipay"
+  ],
+  "homepage": "https://ai6666.com/opcpay/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yapie0/opcpay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Yapie0/opcpay/issues"
+  },
+  "license": "MIT"
+}
