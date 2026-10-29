@@ -14,7 +14,7 @@ const pay = new opcpay(); // 服务端读取 opcpay_api_key
 const [caps, product] = await Promise.all([pay.capabilities(), pay.product()]);
 ```
 
-SDK 默认 Node.js >=18。零运行依赖；只读 CLI 可执行 `opcpay_api_key=... node node_modules/opcpay/index.mjs product`，不要将真实 Key 写进命令历史，实际使用环境变量配置。独立示例使用 Node >=22.13 的 SQLite；这是示例要求，不要求现有应用升级到同一框架。
+SDK 默认 Node.js >=18。零运行依赖；只读 CLI 可执行 `opcpay_api_key=... node node_modules/opcpay/index.mjs product`，不要将真实 Key 写进命令历史，实际使用环境变量配置。
 
 ## 关键 SDK 对应关系
 
