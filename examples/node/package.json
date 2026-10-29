@@ -1,0 +1,8 @@
+{
+  "name": "opcpay-node-example",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": { "start": "node --env-file=.env server.mjs" },
+  "dependencies": { "qrcode": "1.5.4" }
+}

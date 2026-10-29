@@ -1,0 +1,9 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>opcpay 接入示例</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head><body><main>
+<header><a href="https://ai6666.com/opcpay/">opcpay</a><span>网页接入示例</span></header>
+<h1>把时间留给你的产品</h1><p>选择套餐，购买额度，再生成一份示例报告。</p><p id="mode" class="notice"></p>
+<form id="login"><label for="password">示例账号密码</label><div class="row"><input id="password" type="password" autocomplete="current-password" required><button>登录示例账号</button></div><small>模拟模式默认密码：local-demo-password。真实模式使用你配置的密码。</small></form>
+<section id="account" hidden><div class="row spread"><h2>我的权益</h2><div><button id="refresh" class="secondary">刷新权益</button><button id="logout" class="secondary">退出</button></div></div><p id="balance"></p><div id="plans" class="plans"></div><section class="use"><h2>体验你的业务</h2><p>示例业务是生成一份报告。你可以把这里替换成自己的 AI 任务或服务。</p><button id="use">生成示例报告</button><ul id="receipts"></ul></section></section>
+<p id="status" role="status" aria-live="polite"></p>
+<dialog id="checkout"><form method="dialog"><button class="close secondary" aria-label="关闭">×</button></form><h2 id="checkout-title">购买套餐</h2><p id="checkout-status" role="status"></p><img id="qr" width="240" height="240" alt="支付宝购买二维码" hidden><a id="payment-link" target="_blank" rel="noopener noreferrer" hidden>打开支付宝购买</a><button id="mock-pay" hidden>模拟付款（不扣真实资金）</button><button id="new-purchase" class="secondary" hidden>新建购买</button><button id="paid" class="secondary">我已完成，查询权益</button><small>返回页面后查询实际权益。需要再次购买时可以新建入口，原入口不会自动取消。</small></dialog>
+<footer>示例采用单个演示账号。接入自己的产品时，复用你已有的登录与数据库。</footer>
+</main></body></html>

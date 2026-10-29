@@ -4,3 +4,9 @@
 .DS_Store
 node_modules/
 *.tgz
+
+!**/.env.example
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
